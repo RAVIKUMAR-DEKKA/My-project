@@ -26,3 +26,12 @@ jobs:
       with:
         image-ref: sample-web-app:1.0
         severity: HIGH,CRITICAL
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Tag Docker image
+      run: docker tag sample-web-app:1.0 ghcr.io/${{ github.repository }}/sample-web-app:1.0
+
+    - name: Push Docker image to GHCR
+      run: docker push ghcr.io/${{ github.repository }}/sample-web-app:1.0
