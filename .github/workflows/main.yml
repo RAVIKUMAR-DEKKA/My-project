@@ -12,5 +12,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: HTML syntax check
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y tidy
+        tidy -e index.html
+
     - name: Build Docker Image
       run: docker build -t sample-web-app:1.0 .
