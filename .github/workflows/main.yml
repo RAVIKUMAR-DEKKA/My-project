@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ghcr.io/ravikumar-dekka/my-project/sample-web-app:1.0
 
     steps:
     - name: Checkout code
@@ -31,7 +33,7 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Tag Docker image
-      run: docker tag sample-web-app:1.0 ghcr.io/${{ github.repository }}/sample-web-app:1.0
+      run: docker tag sample-web-app:1.0 $IMAGE_NAME
 
     - name: Push Docker image to GHCR
-      run: docker push ghcr.io/${{ github.repository }}/sample-web-app:1.0
+      run: docker push $IMAGE_NAME
