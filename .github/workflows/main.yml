@@ -41,3 +41,38 @@ jobs:
 
     - name: Push Docker image to GHCR
       run: docker push $IMAGE_NAME
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Kind
+      run: |
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v4
+
+    - name: Create Kubernetes cluster
+      run: kind create cluster
+
+    - name: Deploy application to Kubernetes
+      run: |
+        kubectl create deployment sample-web-app \
+          --image=ghcr.io/ravikumar-dekka/my-project/sample-web-app:1.0
+
+    - name: Expose service
+      run: |
+        kubectl expose deployment sample-web-app \
+          --type=NodePort \
+          --port=80
+
+    - name: Verify Pods
+      run: kubectl get pods
