@@ -79,3 +79,40 @@ jobs:
 
     - name: Verify Pods
       run: kubectl get pods
+
+
+  monitor:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v4
+
+    - name: Install Kind
+      run: |
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+
+    - name: Create Kubernetes cluster
+      run: kind create cluster
+
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Add Helm repos
+      run: |
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
+        helm repo update
+
+    - name: Install Prometheus & Grafana
+      run: helm install monitoring prometheus-community/kube-prometheus-stack
+
+    - name: Install Loki
+      run: helm install loki grafana/loki-stack
+
+    - name: Verify monitoring pods
+      run: kubectl get pods -A
